@@ -108,6 +108,7 @@ def main() -> None:
     test_scores = np.random.rand(num_query_embeddings, args.num_hits).astype(
         np.float32
     )
+
     test_indices = np.random.randint(
         0,
         num_target_embeddings,

@@ -1,5 +1,7 @@
 # Processing FAISS hits with Python/Rust
 
+![Face](./images/face.jpg)
+
 ## Setup
 
 - Install Maturin (https://www.maturin.rs/tutorial)
