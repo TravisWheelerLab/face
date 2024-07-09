@@ -1,0 +1,17 @@
+[package]
+name = "process_hits"
+version = "0.1.0"
+edition = "2021"
+description = "A Python extension for processing hits using Rust"
+
+[lib]
+name = "process_hits"
+crate-type = ["cdylib"]
+
+[build-dependencies]
+maturin = "0.12"
+
+[dependencies]
+numpy = "0.21.0"
+pyo3 = "0.21.0"
+hashbrown = "0.12"
