@@ -86,10 +86,10 @@ def main() -> None:
     num_target_embeddings = np.sum(target_sequence_lengths)
 
     query_embeddingid_to_seqid = np.zeros(
-        (num_query_embeddings,), dtype=np.int64
+        (num_query_embeddings,), dtype=np.int32
     )
     target_embeddingid_to_seqid = np.zeros(
-        (num_target_embeddings,), dtype=np.int64
+        (num_target_embeddings,), dtype=np.int32
     )
 
     start = 0
