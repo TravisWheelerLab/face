@@ -87,24 +87,8 @@ def main() -> None:
     num_query_embeddings = np.sum(query_sequence_lengths)
     num_target_embeddings = np.sum(target_sequence_lengths)
 
-    query_embeddingid_to_seqid = np.zeros(
-        (num_query_embeddings,), dtype=np.int32
-    )
-    target_embeddingid_to_seqid = np.zeros(
-        (num_target_embeddings,), dtype=np.int32
-    )
-
-    start = 0
-    for i in range(args.num_query_seqs):
-        end = start + query_sequence_lengths[i]
-        query_embeddingid_to_seqid[start:end] = i
-        start = end
-
-    start = 0
-    for i in range(args.num_target_seqs):
-        end = start + target_sequence_lengths[i]
-        target_embeddingid_to_seqid[start:end] = i
-        start = end
+    query_sequence_starts = np.int32(np.cumsum(query_sequence_lengths)) - query_sequence_lengths[0]
+    target_sequence_starts = np.int32(np.cumsum(target_sequence_lengths)) - target_sequence_lengths[0]
 
     # Create faux FAISS search results
     test_scores = np.random.rand(num_query_embeddings, args.num_hits).astype(
@@ -123,8 +107,8 @@ def main() -> None:
     process_hits.process_hits_py(
         test_scores,
         test_indices,
-        query_embeddingid_to_seqid,
-        target_embeddingid_to_seqid,
+        query_sequence_starts,
+        target_sequence_starts,
         "./test.out",
     )
     end_time = time()
