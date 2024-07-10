@@ -30,29 +30,31 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        "min_seq_len", metavar="MIN_SEQ_LEN", type=int, help="min_seq_len"
+        "-m", "--min_seq_len", metavar="MIN_SEQ_LEN", type=int, help="min_seq_len"
     )
 
     parser.add_argument(
-        "max_seq_len", metavar="MAX_SEQ_LEN", type=int, help="max_seq_len"
+        "-x", "--max_seq_len", metavar="MAX_SEQ_LEN", type=int, help="max_seq_len"
     )
 
     parser.add_argument(
-        "num_query_seqs",
+        "-q",
+        "--num_query_seqs",
         metavar="NUM_QUERY_SEQS",
         type=int,
         help="num_query_seqs",
     )
 
     parser.add_argument(
-        "num_target_seqs",
+        "-t",
+        "--num_target_seqs",
         metavar="NUM_TARGET_SEQS",
         type=int,
         help="num_target_seqs",
     )
 
     parser.add_argument(
-        "num_hits", metavar="NUM_HITS", type=int, help="num_hits"
+        "-n", "--num_hits", metavar="NUM_HITS", type=int, help="num_hits"
     )
 
     args = parser.parse_args()

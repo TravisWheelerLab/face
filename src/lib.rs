@@ -13,10 +13,14 @@ fn process_hits_py(
 ) -> PyResult<()> {
     // Access the numpy arrays safely
     let scores_array = scores.as_array();
+    dbg!(&scores_array);
     let indices_array = indices.as_array();
+    dbg!(&indices_array);
 
     let query_ids = query_ids_p.as_array();
+    dbg!(&query_ids);
     let target_ids = target_ids_p.as_array();
+    dbg!(&target_ids);
 
     let mut results: Vec<HashMap<i32, f32>> =
         Vec::with_capacity(query_ids.len());
@@ -29,13 +33,17 @@ fn process_hits_py(
 
     // Process each query
     for (query_idx, query_id) in query_ids.iter().enumerate() {
+        println!("{query_idx}: query_id {query_id}");
         for col in 0..scores_array.shape()[1] {
             let score = scores_array[[query_idx, col]];
+            println!("col {col} score {score}");
             if score >= 0.0 {
                 let target_idx =
                     indices_array[[query_idx as usize, col]] as usize;
 
                 let target_id = &target_ids[target_idx as usize];
+
+                println!("target_idx {target_idx} target_id {target_id}\n");
 
                 // Accumulate scores
                 *results[*query_id as usize]
