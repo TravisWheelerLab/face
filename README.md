@@ -17,7 +17,7 @@ python3 -m pip freeze
 
 - If you make a change to _src/lib.rs_, run **`maturin develop`**
 
-- Run **`make`** in current directory to execute test Python script
+- Run **`make smol`** in current directory to execute test Python script
 
 ## Authors
 

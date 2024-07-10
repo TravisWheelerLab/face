@@ -1,10 +1,13 @@
 smol: build
 	./process_hits/test_accumulation.py \
-		--min_seq_len 2 \
-		--max_seq_len 5 \
-		--num_query_seqs 2 \
-		--num_target_seqs 5 \
-		--num_hits 3
+		--min-seq-len 2 \
+		--max-seq-len 5 \
+		--num-query-seqs 2 \
+		--num-target-seqs 5 \
+		--num-hits 3
+
+env:
+	python3 -m venv .venv && source .venv/bin/activate
 
 build:
 	maturin develop

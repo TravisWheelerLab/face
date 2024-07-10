@@ -30,16 +30,24 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        "-m", "--min_seq_len", metavar="MIN_SEQ_LEN", type=int, help="min_seq_len"
+        "-m",
+        "--min-seq-len",
+        metavar="MIN_SEQ_LEN",
+        type=int,
+        help="min_seq_len",
     )
 
     parser.add_argument(
-        "-x", "--max_seq_len", metavar="MAX_SEQ_LEN", type=int, help="max_seq_len"
+        "-x",
+        "--max-seq-len",
+        metavar="MAX_SEQ_LEN",
+        type=int,
+        help="max_seq_len",
     )
 
     parser.add_argument(
         "-q",
-        "--num_query_seqs",
+        "--num-query-seqs",
         metavar="NUM_QUERY_SEQS",
         type=int,
         help="num_query_seqs",
@@ -47,14 +55,14 @@ def get_args() -> Args:
 
     parser.add_argument(
         "-t",
-        "--num_target_seqs",
+        "--num-target-seqs",
         metavar="NUM_TARGET_SEQS",
         type=int,
         help="num_target_seqs",
     )
 
     parser.add_argument(
-        "-n", "--num_hits", metavar="NUM_HITS", type=int, help="num_hits"
+        "-n", "--num-hits", metavar="NUM_HITS", type=int, help="num_hits"
     )
 
     args = parser.parse_args()
@@ -87,8 +95,14 @@ def main() -> None:
     num_query_embeddings = np.sum(query_sequence_lengths)
     num_target_embeddings = np.sum(target_sequence_lengths)
 
-    query_sequence_starts = np.int32(np.cumsum(query_sequence_lengths)) - query_sequence_lengths[0]
-    target_sequence_starts = np.int32(np.cumsum(target_sequence_lengths)) - target_sequence_lengths[0]
+    query_sequence_starts = (
+        np.int32(np.cumsum(query_sequence_lengths))
+        - query_sequence_lengths[0]
+    )
+    target_sequence_starts = (
+        np.int32(np.cumsum(target_sequence_lengths))
+        - target_sequence_lengths[0]
+    )
 
     # Create faux FAISS search results
     test_scores = np.random.rand(num_query_embeddings, args.num_hits).astype(
