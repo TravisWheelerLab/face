@@ -53,7 +53,7 @@ fn process_hits_py(
     //let last_target_idx = target_ids.len() - 1;
     //let last_target_start = target_ids[last_target_idx];
 
-    (0..(query_ids.len() - 1)).into_par_iter().for_each(|i| {
+    (0..query_ids.len()).into_par_iter().for_each(|i| {
         if let Err(e) = run(Args {
             query_idx: i,
             scores: scores_array,
