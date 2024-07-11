@@ -5,16 +5,19 @@ use pyo3::prelude::*;
 use rayon::prelude::*;
 use std::{
     collections::HashMap,
-    fs::File,
-    io::{BufWriter, Write},
+    io::Write,
     sync::{Arc, Mutex},
 };
 
+struct QueryInterval {
+    pub start: usize,
+    pub end: usize,
+}
 struct Args<'a> {
-    query_idx: usize,
     scores: ArrayView<'a, f32, Dim<[usize; 2]>>,
     indices: ArrayView<'a, i64, Dim<[usize; 2]>>,
-    query_ids: ArrayView<'a, i64, Dim<[usize; 1]>>,
+    // query_ids: ArrayView<'a, i64, Dim<[usize; 1]>>,
+    // query_lengths: &'a [usize],
     target_ids: &'a [usize],
     dedup: bool,
     output: Option<Arc<Mutex<Box<dyn Write + Send + Sync>>>>,
@@ -25,7 +28,7 @@ fn process_hits_py(
     _py: Python,
     scores: PyReadonlyArray2<f32>,
     indices: PyReadonlyArray2<i64>, // Using i64 for indices
-    query_ids_p: PyReadonlyArray1<i64>,
+    query_start_p: PyReadonlyArray1<i64>,
     target_ids_p: PyReadonlyArray1<i64>,
     _output_path: String,
     num_threads: usize,
@@ -43,74 +46,83 @@ fn process_hits_py(
     //let num_rows = scores_array.shape()[0] as i64;
     //let num_cols = scores_array.shape()[1];
     let indices_array = indices.as_array();
-    let query_ids = query_ids_p.as_array();
+    let query_starts = query_start_p.as_array();
     let target_ids: Vec<usize> = target_ids_p
         .as_array()
         .into_iter()
         .flat_map(|v| usize::try_from(*v))
-        .into_iter()
         .collect();
     //let last_target_idx = target_ids.len() - 1;
     //let last_target_start = target_ids[last_target_idx];
 
     dbg!(&scores_array.shape());
-    dbg!(&query_ids);
-    let mut query_lens: Vec<_> = query_ids
+    dbg!(&query_starts);
+
+    let mut query_lens: Vec<_> = query_starts
         .iter()
-        .zip(query_ids.iter().skip(1))
+        .zip(query_starts.iter().skip(1))
         .map(|(a, b)| b - a)
         .collect();
+
     //dbg!(query_lens);
+
     let num_rows = &scores_array.shape()[0];
     dbg!(&num_rows);
-    dbg!(query_ids.last());
-    let last_len = num_rows - query_ids.last().unwrap();
-    query_lens.push(last_len);
+    dbg!(query_starts.last());
+    let last_len = *num_rows - *query_starts.last().unwrap() as usize;
+    query_lens.push(last_len as i64);
 
-    (0..(query_ids.len() - 1)).into_par_iter().for_each(|i| {
-        if let Err(e) = run(Args {
-            query_idx: i,
-            scores: scores_array,
-            indices: indices_array,
-            query_ids,
-            target_ids: &target_ids,
-            dedup: false,
-            //output: Some(output.clone()),
-            output: None,
-        }) {
-            println!("{e}");
-        }
-    });
+    let query_intervals: Vec<_> = query_starts
+        .iter()
+        .zip(query_lens)
+        .map(|(&start, len)| QueryInterval {
+            start: start as usize,
+            end: (start + len) as usize,
+        })
+        .collect();
 
+    if let Err(e) = query_intervals.into_par_iter().enumerate().try_for_each(
+        |(query_idx, query_interval)| -> Result<()> {
+            run(
+                query_idx,
+                query_interval,
+                Args {
+                    scores: scores_array,
+                    indices: indices_array,
+                    target_ids: &target_ids,
+                    dedup: false,
+                    //output: Some(output.clone()),
+                    output: None,
+                },
+            )
+        },
+    ) {
+        eprintln!("{e:?}");
+    }
     Ok(())
 }
 
 // --------------------------------------------------
-fn run(args: Args) -> Result<()> {
-    let query_start = args.query_ids[args.query_idx];
+fn run(query_idx: usize, query_interval: QueryInterval, args: Args) -> Result<()> {
+    // let num_rows = args.scores.shape()[0] as i64;
+    // let query_len = args
+    //     .query_ids
+    //     .get(args.query_idx + 1)
+    //     .or(Some(&num_rows))
+    //     .map(|v| v - query_start)
+    //     .unwrap();
+
     let last_target_idx = args.target_ids.len() - 1;
     let last_target_start = args.target_ids[last_target_idx];
-    let num_rows = args.scores.shape()[0] as i64;
     let num_cols = args.scores.shape()[1];
-    let query_len = args
-        .query_ids
-        .get(args.query_idx + 1)
-        .or(Some(&num_rows))
-        .map(|v| v - query_start)
-        .unwrap();
+    let query_len = query_interval.end - query_interval.start + 1;
 
-    let mut results: HashMap<usize, f32> =
-        HashMap::with_capacity(query_len as usize * (num_cols as usize));
+    let mut results: HashMap<usize, f32> = HashMap::with_capacity(query_len * num_cols);
 
-    for q_i in query_start..(query_start + query_len) {
-        let q_i = q_i as usize;
-        let qscores: Vec<_> = (0..num_cols)
-            .into_iter()
-            .map(|col| args.scores[[q_i, col]])
-            .collect();
+    for q_i in query_interval.start..=query_interval.end {
+        let qscores: Vec<_> = (0..num_cols).map(|col| args.scores[[q_i, col]]).collect();
 
         let qindices: Vec<_> = (0..num_cols)
-            .into_iter()
             .flat_map(|col| usize::try_from(args.indices[[q_i, col]]))
             .collect();
 
@@ -128,15 +140,12 @@ fn run(args: Args) -> Result<()> {
                     }
                 }
             })
-            .into_iter()
             .collect();
 
         // Create [(target_id, score)]
         let mut tscores: Vec<_> = targets.iter().zip(qscores).collect();
         if args.dedup {
-            tscores.sort_by(|a, b| {
-                a.0.cmp(b.0).then_with(|| b.1.partial_cmp(&a.1).unwrap())
-            });
+            tscores.sort_by(|a, b| a.0.cmp(b.0).then_with(|| b.1.partial_cmp(&a.1).unwrap()));
             tscores.dedup_by(|a, b| a.0 == b.0);
         }
 
@@ -151,13 +160,9 @@ fn run(args: Args) -> Result<()> {
     if let Some(output) = args.output {
         for (target_id, score) in &results {
             match output.lock() {
-                Ok(mut guard) => writeln!(
-                    guard,
-                    "{} {} {:.7}",
-                    args.query_idx + 1,
-                    target_id + 1,
-                    score
-                )?,
+                Ok(mut guard) => {
+                    writeln!(guard, "{} {} {:.7}", query_idx + 1, target_id + 1, score)?
+                }
                 Err(e) => panic!("ouch: {e}"),
             }
         }
