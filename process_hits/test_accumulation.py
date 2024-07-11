@@ -97,23 +97,23 @@ def main() -> None:
     print("Creating data")
 
     # Create the sequence data
-    query_sequence_lengths = np.random.randint(
+    query_sequence_lengths = np.int64(np.random.randint(
         args.min_seq_len, args.max_seq_len, size=args.num_query_seqs
-    )
-    target_sequence_lengths = np.random.randint(
+    ))
+    target_sequence_lengths = np.int64(np.random.randint(
         args.min_seq_len, args.max_seq_len, size=args.num_target_seqs
-    )
+    ))
 
     num_query_embeddings = np.sum(query_sequence_lengths)
     num_target_embeddings = np.sum(target_sequence_lengths)
 
     query_sequence_starts = (
-        np.int32(np.cumsum(query_sequence_lengths, dtype=np.int32))
-        - query_sequence_lengths[0]
+        np.int64(np.cumsum(query_sequence_lengths)
+        - query_sequence_lengths[0])
     )
     target_sequence_starts = (
-        np.int32(np.cumsum(target_sequence_lengths, dtype=np.int32))
-        - target_sequence_lengths[0]
+        np.int64(np.cumsum(target_sequence_lengths)
+        - target_sequence_lengths[0])
     )
 
     # Create faux FAISS search results
