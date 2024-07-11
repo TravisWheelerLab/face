@@ -20,6 +20,7 @@ class Args(NamedTuple):
     num_target_seqs: int
     num_hits: int
     seed: int
+    num_threads: int
 
 
 # --------------------------------------------------
@@ -68,11 +69,15 @@ def get_args() -> Args:
     )
 
     parser.add_argument(
-        "-s",
-        "--seed",
-        metavar="Random seed",
-        type=int
+        "-T",
+        "--num-threads",
+        metavar="NUM_THREADS",
+        type=int,
+        help="num_hits",
+        default=1,
     )
+
+    parser.add_argument("-s", "--seed", metavar="Random seed", type=int)
 
     args = parser.parse_args()
 
@@ -82,7 +87,8 @@ def get_args() -> Args:
         args.num_query_seqs,
         args.num_target_seqs,
         args.num_hits,
-        args.seed
+        args.seed,
+        args.num_threads,
     )
 
 
@@ -97,23 +103,25 @@ def main() -> None:
     print("Creating data")
 
     # Create the sequence data
-    query_sequence_lengths = np.int64(np.random.randint(
-        args.min_seq_len, args.max_seq_len, size=args.num_query_seqs
-    ))
-    target_sequence_lengths = np.int64(np.random.randint(
-        args.min_seq_len, args.max_seq_len, size=args.num_target_seqs
-    ))
+    query_sequence_lengths = np.int64(
+        np.random.randint(
+            args.min_seq_len, args.max_seq_len, size=args.num_query_seqs
+        )
+    )
+    target_sequence_lengths = np.int64(
+        np.random.randint(
+            args.min_seq_len, args.max_seq_len, size=args.num_target_seqs
+        )
+    )
 
     num_query_embeddings = np.sum(query_sequence_lengths)
     num_target_embeddings = np.sum(target_sequence_lengths)
 
-    query_sequence_starts = (
-        np.int64(np.cumsum(query_sequence_lengths)
-        - query_sequence_lengths[0])
+    query_sequence_starts = np.int64(
+        np.cumsum(query_sequence_lengths) - query_sequence_lengths[0]
     )
-    target_sequence_starts = (
-        np.int64(np.cumsum(target_sequence_lengths)
-        - target_sequence_lengths[0])
+    target_sequence_starts = np.int64(
+        np.cumsum(target_sequence_lengths) - target_sequence_lengths[0]
     )
 
     # Create faux FAISS search results
@@ -136,6 +144,7 @@ def main() -> None:
         query_sequence_starts,
         target_sequence_starts,
         "./test.out",
+        args.num_threads,
     )
     end_time = time()
     print("Done. Time taken: {} seconds".format(end_time - start_time))

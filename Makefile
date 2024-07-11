@@ -39,6 +39,7 @@ biggie: build
 		--min-seq-len 400 \
 		--max-seq-len 600 \
 		--num-query-seqs 1000 \
-		--num-target-seqs 200000 \
+		--num-target-seqs 20000 \
 		--num-hits 100 \
-		--seed 1
+		--seed 1 \
+		--num-threads 8
