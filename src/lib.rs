@@ -27,7 +27,7 @@ fn process_hits_py(
     indices: PyReadonlyArray2<i64>, // Using i64 for indices
     query_ids_p: PyReadonlyArray1<i64>,
     target_ids_p: PyReadonlyArray1<i64>,
-    _output_path: String,
+    output_path: String,
     num_threads: usize,
 ) -> PyResult<()> {
     // Set threads
@@ -36,9 +36,9 @@ fn process_hits_py(
         .build_global()
         .unwrap();
 
-    //let output: Arc<Mutex<Box<dyn Write + Send + Sync>>> = Arc::new(
-    //    Mutex::new(Box::new(BufWriter::new(File::create(output_path)?))),
-    //);
+    let output: Arc<Mutex<Box<dyn Write + Send + Sync>>> = Arc::new(
+        Mutex::new(Box::new(BufWriter::new(File::create(output_path)?))),
+    );
     let scores_array = scores.as_array();
     //let num_rows = scores_array.shape()[0] as i64;
     //let num_cols = scores_array.shape()[1];
@@ -61,8 +61,8 @@ fn process_hits_py(
             query_ids,
             target_ids: &target_ids,
             dedup: false,
-            //output: Some(output.clone()),
-            output: None,
+            output: Some(output.clone()),
+            //output: None,
         }) {
             println!("{e}");
         }
