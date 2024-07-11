@@ -6,14 +6,7 @@
 
 - Install Maturin (https://www.maturin.rs/tutorial)
 
-- Create/activate Python venv, install Maturin
-
-```
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -U pip maturin
-python3 -m pip freeze
-```
+- Create/activate Python venv, install deps **`make env`**
 
 - If you make a change to _src/lib.rs_, run **`maturin develop`**
 

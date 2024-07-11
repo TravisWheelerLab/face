@@ -6,6 +6,7 @@ Docs here
 import argparse
 import numpy as np
 import process_hits
+import random
 from time import time
 from typing import NamedTuple
 
@@ -18,6 +19,7 @@ class Args(NamedTuple):
     num_query_seqs: int
     num_target_seqs: int
     num_hits: int
+    seed: int
 
 
 # --------------------------------------------------
@@ -65,6 +67,13 @@ def get_args() -> Args:
         "-n", "--num-hits", metavar="NUM_HITS", type=int, help="num_hits"
     )
 
+    parser.add_argument(
+        "-s",
+        "--seed",
+        metavar="Random seed",
+        type=int
+    )
+
     args = parser.parse_args()
 
     return Args(
@@ -73,6 +82,7 @@ def get_args() -> Args:
         args.num_query_seqs,
         args.num_target_seqs,
         args.num_hits,
+        args.seed
     )
 
 
@@ -81,6 +91,8 @@ def main() -> None:
     """Make a jazz noise here"""
 
     args = get_args()
+
+    random.seed(args.seed)
 
     print("Creating data")
 
@@ -96,11 +108,11 @@ def main() -> None:
     num_target_embeddings = np.sum(target_sequence_lengths)
 
     query_sequence_starts = (
-        np.int32(np.cumsum(query_sequence_lengths))
+        np.int32(np.cumsum(query_sequence_lengths, dtype=np.int32))
         - query_sequence_lengths[0]
     )
     target_sequence_starts = (
-        np.int32(np.cumsum(target_sequence_lengths))
+        np.int32(np.cumsum(target_sequence_lengths, dtype=np.int32))
         - target_sequence_lengths[0]
     )
 
