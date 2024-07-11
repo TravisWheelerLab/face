@@ -1482,10 +1482,13 @@ dependencies = [
 name = "process_hits"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "hashbrown 0.12.3",
  "maturin",
+ "ndarray",
  "numpy",
  "pyo3",
+ "rayon",
 ]
 
 [[package]]

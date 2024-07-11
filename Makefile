@@ -4,6 +4,9 @@ env:
 build:
 	maturin develop
 
+release:
+	maturin release
+
 smol: build
 	./process_hits/test_accumulation.py \
 		--min-seq-len 2 \
@@ -35,7 +38,7 @@ biggie: build
 	./process_hits/test_accumulation.py \
 		--min-seq-len 400 \
 		--max-seq-len 600 \
-		--num-query-seqs 10 \
+		--num-query-seqs 1000 \
 		--num-target-seqs 200000 \
 		--num-hits 100 \
 		--seed 1
