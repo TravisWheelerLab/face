@@ -53,6 +53,20 @@ fn process_hits_py(
     //let last_target_idx = target_ids.len() - 1;
     //let last_target_start = target_ids[last_target_idx];
 
+    dbg!(&scores_array.shape());
+    dbg!(&query_ids);
+    let mut query_lens: Vec<_> = query_ids
+        .iter()
+        .zip(query_ids.iter().skip(1))
+        .map(|(a, b)| b - a)
+        .collect();
+    //dbg!(query_lens);
+    let num_rows = &scores_array.shape()[0];
+    dbg!(&num_rows);
+    dbg!(query_ids.last());
+    let last_len = num_rows - query_ids.last().unwrap();
+    query_lens.push(last_len);
+
     (0..(query_ids.len() - 1)).into_par_iter().for_each(|i| {
         if let Err(e) = run(Args {
             query_idx: i,
