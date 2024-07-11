@@ -6,9 +6,8 @@ Docs here
 import argparse
 import numpy as np
 import process_hits
-import random
 from time import time
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 
 class Args(NamedTuple):
@@ -19,7 +18,7 @@ class Args(NamedTuple):
     num_query_seqs: int
     num_target_seqs: int
     num_hits: int
-    seed: int
+    seed: Optional[int]
     num_threads: int
 
 
@@ -77,7 +76,9 @@ def get_args() -> Args:
         default=1,
     )
 
-    parser.add_argument("-s", "--seed", metavar="Random seed", type=int)
+    parser.add_argument(
+        "-s", "--seed", metavar="Random seed", type=int, default=None
+    )
 
     args = parser.parse_args()
 
@@ -97,12 +98,10 @@ def main() -> None:
     """Make a jazz noise here"""
 
     args = get_args()
-
-    random.seed(args.seed)
-
-    print("Creating data")
+    np.random.seed(args.seed)
 
     # Create the sequence data
+    print("Creating data")
     query_sequence_lengths = np.int64(
         np.random.randint(
             args.min_seq_len, args.max_seq_len, size=args.num_query_seqs
