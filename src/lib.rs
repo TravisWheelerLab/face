@@ -145,9 +145,7 @@ fn run(
                 .and_modify(|v| *v += target_score)
                 .or_insert(target_score);
         }
-        break;
     }
-    dbg!(&results);
 
     if let Some(output) = args.output {
         for (target_id, score) in &results {
