@@ -78,7 +78,7 @@ fn process_hits_py(
 
 The `scores` is a 2D array of `f32` values where each row represents the scores for each residue of the query sequences.
 In the following output from the `smol` run previously, the program is run with 3 query sequences that in total comprised 7 amino acids.
-Run with `--num-hits 3` means each AA has three scores:
+Since we ran with `--num-hits 3`, each query AA has three scores:
 
 ```
 [[0.18626021, 0.34556073, 0.39676747],
@@ -115,29 +115,29 @@ Each cell in `scores` has a partner in the `indices` array, which is also 2D fol
 So we know the scores belong to the following queries:
 
 ```
-[[0.18626021, 0.34556073, 0.39676747],  < Query 1
+[[0.18626021, 0.34556073, 0.39676747],  < Query 1 AA 1
 [[3,          10,         9],           < Targets
 
- [0.53881675, 0.41919452, 0.6852195],   < Query 1
+ [0.53881675, 0.41919452, 0.6852195],   < Query 1 AA 2
  [8,          7,          3],           < Targets
 
- [0.20445225, 0.87811744, 0.027387593], < Query 2
+ [0.20445225, 0.87811744, 0.027387593], < Query 2 AA 1
  [6,          5,          1],           < Targets
 
- [0.6704675, 0.4173048, 0.55868983],    < Query 2
+ [0.6704675, 0.4173048, 0.55868983],    < Query 2 AA 2
  [9,         3,         4],             < Targets
 
- [0.14038694, 0.19810149, 0.8007446],   < Query 3
+ [0.14038694, 0.19810149, 0.8007446],   < Query 3 AA 1
  [8,          1,          11],          < Targets
 
- [0.9682616, 0.31342417, 0.6923226],    < Query 3
+ [0.9682616, 0.31342417, 0.6923226],    < Query 3 AA 2
  [12,        10,         4],            < Targets
 
- [0.87638915, 0.89460665, 0.08504421]]  < Query 3
+ [0.87638915, 0.89460665, 0.08504421]]  < Query 3 AA 3
  [0,          3,          9]]           < Targets
 ```
 
-The integet values in `targets` corresponds to a target AA position where all the target sequences can be thought of as existing sequentially.
+The integer values in `targets` correspond to a target AA position where all the target sequences can be thought of as existing sequentially.
 The `target_start_p` array contains the start positions of the target sequences:
 
 ```
@@ -193,7 +193,7 @@ Finally, a `results` hashmap is updated to accumulate the score for each target.
 In the case of the first query sequence, it hits four different targets to produce the following sums:
 
 ```
-query_idx = 0
+query_idx   = 0
 tscores q_1 = [(1, 0.18626021), (4, 0.34556073), (3, 0.39676747)]
 tscores q_2 = [(3, 0.53881675), (3, 0.41919452), (1, 0.6852195)]
 results     = {4: 0.34556073, 3: 1.3547788, 1: 0.87147975}
@@ -225,3 +225,5 @@ Run **`cargo test`** to ensure the program produces the correct output.
 
 * Daniel Olson <daniel.olson@umconnect.umt.edu>
 * Ken Youens-Clark <kyclark@arizona.edu>
+* Travis Wheeler <twheeler@arizona.edu>
+* Jack Roddy <jroddy@pharmacy.arizona.edu>
