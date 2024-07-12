@@ -19,6 +19,13 @@ rayon = "1.10.0"
 anyhow = "1.0.86"
 ndarray = "0.15.6"
 
+[dev-dependencies]
+pretty_assertions = "1.4.0"
+predicates = "3.1.0"
+assert_cmd = "2.0.14"
+rand = "0.8.5"
+tempfile = "3.10.1"
+
 [profile.release]
 opt-level = 3
 lto = true

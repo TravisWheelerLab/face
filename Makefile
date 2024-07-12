@@ -16,6 +16,15 @@ smol: build
 		--num-hits 3 \
 		--seed 1
 
+smol2: build
+	./process_hits/test_accumulation.py \
+		--min-seq-len 2 \
+		--max-seq-len 5 \
+		--num-query-seqs 3 \
+		--num-target-seqs 5 \
+		--num-hits 3 \
+		--seed 2
+
 mid: build
 	./process_hits/test_accumulation.py \
 		--min-seq-len 400 \

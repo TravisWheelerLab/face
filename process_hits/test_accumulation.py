@@ -20,6 +20,7 @@ class Args(NamedTuple):
     num_hits: int
     seed: Optional[int]
     num_threads: int
+    outfile: str
 
 
 # --------------------------------------------------
@@ -27,7 +28,7 @@ def get_args() -> Args:
     """Get command-line arguments"""
 
     parser = argparse.ArgumentParser(
-        description="Rock the Casbah",
+        description="Run simulation",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -37,6 +38,7 @@ def get_args() -> Args:
         metavar="MIN_SEQ_LEN",
         type=int,
         help="min_seq_len",
+        default="2",
     )
 
     parser.add_argument(
@@ -45,6 +47,7 @@ def get_args() -> Args:
         metavar="MAX_SEQ_LEN",
         type=int,
         help="max_seq_len",
+        default="5",
     )
 
     parser.add_argument(
@@ -53,6 +56,7 @@ def get_args() -> Args:
         metavar="NUM_QUERY_SEQS",
         type=int,
         help="num_query_seqs",
+        default="3",
     )
 
     parser.add_argument(
@@ -61,10 +65,16 @@ def get_args() -> Args:
         metavar="NUM_TARGET_SEQS",
         type=int,
         help="num_target_seqs",
+        default="5",
     )
 
     parser.add_argument(
-        "-n", "--num-hits", metavar="NUM_HITS", type=int, help="num_hits"
+        "-n",
+        "--num-hits",
+        metavar="NUM_HITS",
+        type=int,
+        help="num_hits",
+        default="3",
     )
 
     parser.add_argument(
@@ -80,16 +90,25 @@ def get_args() -> Args:
         "-s", "--seed", metavar="Random seed", type=int, default=None
     )
 
+    parser.add_argument(
+        "-o",
+        "--outfile",
+        metavar="Output filename",
+        type=str,
+        default="sim.out",
+    )
+
     args = parser.parse_args()
 
     return Args(
-        args.min_seq_len,
-        args.max_seq_len,
-        args.num_query_seqs,
-        args.num_target_seqs,
-        args.num_hits,
-        args.seed,
-        args.num_threads,
+        min_seq_len=args.min_seq_len,
+        max_seq_len=args.max_seq_len,
+        num_query_seqs=args.num_query_seqs,
+        num_target_seqs=args.num_target_seqs,
+        num_hits=args.num_hits,
+        seed=args.seed,
+        num_threads=args.num_threads,
+        outfile=args.outfile,
     )
 
 
@@ -143,11 +162,11 @@ def main() -> None:
         test_indices,
         query_sequence_starts,
         target_sequence_starts,
-        "./test.out",
+        args.outfile,
         args.num_threads,
     )
     end_time = time()
-    print("Done. Time taken: {} seconds".format(end_time - start_time))
+    print(f'Created "{args.outfile}" in {end_time - start_time} seconds.')
 
 
 # --------------------------------------------------

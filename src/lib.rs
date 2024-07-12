@@ -20,6 +20,7 @@ struct Args<'a> {
     output: Option<Arc<Mutex<Box<dyn Write + Send + Sync>>>>,
 }
 
+// --------------------------------------------------
 #[pyfunction]
 fn process_hits_py(
     _py: Python,
@@ -134,7 +135,7 @@ fn run(args: Args) -> Result<()> {
         }
         break;
     }
-    dbg!(&results);
+    //dbg!(&results);
 
     if let Some(output) = args.output {
         for (target_id, score) in &results {
@@ -153,6 +154,7 @@ fn run(args: Args) -> Result<()> {
     Ok(())
 }
 
+// --------------------------------------------------
 #[pymodule]
 fn process_hits(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(process_hits_py, m)?)?;
