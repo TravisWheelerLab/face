@@ -118,10 +118,8 @@ def main() -> None:
 
     args = get_args()
     np.random.seed(args.seed)
-
     print("Creating data")
 
-    # Create the sequence data
     query_sequence_lengths = np.int64(
         np.random.randint(
             args.min_seq_len, args.max_seq_len, size=args.num_query_seqs
